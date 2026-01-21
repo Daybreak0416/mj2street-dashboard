@@ -386,7 +386,31 @@ const UMA = [30, 10, -10, -30], START_SCORE = 25000, RETURN_SCORE = 30000, TOTAL
         function deleteRecord(i) { if(confirm("삭제하시겠습니까?")) { history.splice(i, 1); localStorage.setItem('mjHistory', JSON.stringify(history)); renderTotalRanking(); renderHistoryList(); } }
         function showMainPage() { document.getElementById('main-page').style.display='block'; document.getElementById('input-page').style.display='none'; renderTotalRanking(); renderHistoryList(); }
         function exportData() { const d = btoa(unescape(encodeURIComponent(JSON.stringify(history)))); navigator.clipboard.writeText(d); alert("백업 코드가 클립보드에 복사되었습니다."); }
-        function importData() { const c = prompt("코드를 입력하세요."); if(c) { try { history = JSON.parse(decodeURIComponent(escape(atob(c)))); localStorage.setItem('mjHistory', JSON.stringify(history)); showMainPage(); } catch(e){alert("잘못된 코드입니다.");} } }
+        function importData() {
+    const c = prompt("코드를 입력하세요.");
+    if(c) {
+        try {
+            const newData = JSON.parse(decodeURIComponent(escape(atob(c))));
+            if (confirm("기존 기록을 유지하고 새 기록을 합칠까요?\n(취소를 누르면 새 기록으로 덮어씁니다.)")) {
+                // 합치기: 기존 history 배열에 newData 배열을 이어붙임
+                history = history.concat(newData);
+                
+                // 중복 제거 (날짜와 점수 구성이 완전히 같은 데이터는 하나만 남김)
+                history = history.filter((item, index, self) =>
+                    index === self.findIndex((t) => (
+                        t.date === item.date && JSON.stringify(t.results) === JSON.stringify(item.results)
+                    ))
+                );
+            } else {
+                // 덮어쓰기
+                history = newData;
+            }
+            localStorage.setItem('mjHistory', JSON.stringify(history));
+            showMainPage();
+            alert("기록을 성공적으로 가져왔습니다!");
+        } catch(e){ alert("잘못된 코드입니다."); }
+    }
+}
         window.onload = showMainPage;</script>
     <script>if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -395,4 +419,5 @@ const UMA = [30, 10, -10, -30], START_SCORE = 25000, RETURN_SCORE = 30000, TOTAL
         }</script>
 </body>
 </html>
+
 
