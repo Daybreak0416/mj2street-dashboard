@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -7,6 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#121212">
     <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>마작2번가 기록 앱</title>
     <style>
@@ -232,7 +233,8 @@
             <button id="save-button" class="btn-save" onclick="saveRecord()">결과 저장 및 종료</button>
         </div>
     </div>
-    <script>const UMA = [30, 10, -10, -30], START_SCORE = 25000, RETURN_SCORE = 30000, TOTAL_TARGET = 100000;
+    <script>
+const UMA = [30, 10, -10, -30], START_SCORE = 25000, RETURN_SCORE = 30000, TOTAL_TARGET = 100000;
         let history = JSON.parse(localStorage.getItem('mjHistory')) || [];
         let editIndex = -1, currentCalcedResult = null;
 
@@ -387,5 +389,10 @@
         function exportData() { const d = btoa(unescape(encodeURIComponent(JSON.stringify(history)))); navigator.clipboard.writeText(d); alert("백업 코드가 클립보드에 복사되었습니다."); }
         function importData() { const c = prompt("코드를 입력하세요."); if(c) { try { history = JSON.parse(decodeURIComponent(escape(atob(c)))); localStorage.setItem('mjHistory', JSON.stringify(history)); showMainPage(); } catch(e){alert("잘못된 코드입니다.");} } }
         window.onload = showMainPage;</script>
+    <script>if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }</script>
 </body>
 </html>
