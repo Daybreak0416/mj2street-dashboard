@@ -1,0 +1,391 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="마작2번가">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#121212">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>마작2번가 기록 앱</title>
+    <style>
+
+        :root {
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #2d3436;
+            --border: #dfe6e9;
+            --accent: #0984e3;
+            --danger: #d63031;
+            --success: #00b894;
+            --warning: #f1c40f;
+            --rank1-bg: rgba(241, 196, 15, 0.15);
+            --rank4-bg: #f1f2f6;
+        }
+
+        body.dark-mode {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --text: #dfe6e9;
+            --border: #2d3436;
+            --rank1-bg: rgba(241, 196, 15, 0.25);
+            --rank4-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: -apple-system, sans-serif;
+            padding: 20px 15px;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding-bottom: 60px;
+            transition: 0.3s;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .player-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        input {
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: var(--card);
+            color: var(--text);
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .p-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .p-score {
+            flex: 1.2;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        button {
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-main {
+            background: var(--accent);
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-save {
+            background: var(--success);
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-edit {
+            background: var(--border);
+            color: var(--text);
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            width: auto;
+            border-radius: 8px;
+        }
+
+        .rank-1 {
+            background-color: var(--rank1-bg) !important;
+            font-weight: 800;
+        }
+
+            .rank-1 td:first-child {
+                color: #d4af37;
+            }
+
+        .rank-4 {
+            background-color: var(--rank4-bg) !important;
+            opacity: 0.8;
+        }
+
+        .point-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 1rem; /* 폰트 크기 살짝 키움 */
+            font-family: 'Pretendard', sans-serif; /* 가독성 좋은 폰트 지정 */
+            background: rgba(128,128,128,0.1);
+        }
+
+        .pos {
+            color: var(--accent);
+        }
+
+        .neg {
+            color: var(--danger) !important;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            font-size: 0.75rem;
+            color: #b2bec3;
+            padding-bottom: 10px;
+        }
+
+        td {
+            padding: 12px 5px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .util-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+            .util-row button {
+                flex: 1;
+                background: var(--card);
+                border: 1px solid var(--border);
+                color: var(--text);
+                font-size: 0.8rem;
+            }
+    </style>
+</head>
+<body>
+    <div id="main-page">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <button onclick="toggleDarkMode()" style="width:48px; height:48px; background:var(--card); border:1px solid var(--border); border-radius: 14px; padding:0;">🌓</button>
+            <h2 style="margin:0;">📊 순위</h2>
+            <div style="width:48px;"></div>
+        </div>
+        <div class="card" style="overflow-x: auto; padding: 15px 5px;">
+            <table>
+                <thead><tr><th>이름</th><th>대국</th><th>평균</th><th>최고</th><th>연승</th><th>총점</th></tr></thead>
+                <tbody id="total-rank-body"></tbody>
+            </table>
+        </div>
+        <button class="btn-main" onclick="showInputPage()"> 📜새로운 기록 입력</button>
+        <div class="util-row">
+            <button onclick="exportData()">💾 백업</button>
+            <button onclick="importData()">📂 복구</button>
+        </div>
+        <h3 style="margin: 30px 5px 15px;">📜 최근 게임</h3>
+        <div id="history-list" class="card"></div>
+    </div>
+    <div id="input-page" style="display:none;">
+        <button style="background:var(--border); color:var(--text); margin-bottom:15px;" onclick="showMainPage()">← 뒤로가기</button>
+        <div class="card">
+            <div id="guide-msg" style="text-align:center; font-weight:800; margin-bottom:20px;">점수를 입력하세요</div>
+            <div id="inputs">
+                <div class="player-row"><input type="text" class="p-name" value="양주하"><input type="number" inputmode="numeric" class="p-score" oninput="calculate()"></div>
+                <div class="player-row"><input type="text" class="p-name" value="남유성"><input type="number" inputmode="numeric" class="p-score" oninput="calculate()"></div>
+                <div class="player-row"><input type="text" class="p-name" value="최봉민"><input type="number" inputmode="numeric" class="p-score" oninput="calculate()"></div>
+                <div class="player-row"><input type="text" class="p-name" value="용희준"><input type="number" inputmode="numeric" class="p-score" oninput="calculate()"></div>
+            </div>
+            <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:700; opacity:0.6;">공탁금</span>
+                <input type="number" inputmode="numeric" id="pot" value="0" oninput="calculate()" style="width:80px;">
+            </div>
+        </div>
+        <div class="card" style="background: #2d3436; color: white;">
+            <table style="color: white; border:none;">
+                <tbody id="realtime-rank-body"></tbody>
+            </table>
+            <button id="save-button" class="btn-save" onclick="saveRecord()">결과 저장 및 종료</button>
+        </div>
+    </div>
+    <script>const UMA = [30, 10, -10, -30], START_SCORE = 25000, RETURN_SCORE = 30000, TOTAL_TARGET = 100000;
+        let history = JSON.parse(localStorage.getItem('mjHistory')) || [];
+        let editIndex = -1, currentCalcedResult = null;
+
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); localStorage.setItem('mjDarkMode', document.body.classList.contains('dark-mode')); }
+        if (localStorage.getItem('mjDarkMode') === 'true') document.body.classList.add('dark-mode');
+
+        function showInputPage(index = -1) {
+            editIndex = index;
+            document.getElementById('main-page').style.display = 'none';
+            document.getElementById('input-page').style.display = 'block';
+            const ns = document.querySelectorAll('.p-name'), ss = document.querySelectorAll('.p-score');
+            if (index !== -1) {
+                history[index].rawScores.forEach((s, i) => { ns[i].value = s.name; ss[i].value = s.score; });
+                document.getElementById('pot').value = history[index].pot || 0;
+            } else { ss.forEach(s => s.value = ""); document.getElementById('pot').value = 0; }
+            calculate();
+        }
+
+        function calculate() {
+            const ns = document.querySelectorAll('.p-name'), ss = document.querySelectorAll('.p-score');
+            const pot = parseInt(document.getElementById('pot').value) || 0;
+            const guide = document.getElementById('guide-msg'), resultBody = document.getElementById('realtime-rank-body'), saveBtn = document.getElementById('save-button');
+
+            let filled = [], emptyIdx = -1, sum = pot;
+            ss.forEach((s, i) => {
+                const v = parseInt(s.value);
+                if(!isNaN(v)) { filled.push({name:ns[i].value, score:v, idx:i}); sum += v; }
+                else emptyIdx = i;
+            });
+
+            // 임시 배열 생성 (자동완성 포함 4명을 만들기 위함)
+            let calcData = [...filled];
+
+            if(filled.length === 3) {
+                const needed = TOTAL_TARGET - sum;
+                guide.innerText = `나머지 한 명: ${needed.toLocaleString()}점 (자동입력)`;
+                guide.style.color = "var(--accent)";
+                calcData.push({name: ns[emptyIdx].value, score: needed, idx: emptyIdx});
+            } else if(filled.length === 4) {
+                const diff = TOTAL_TARGET - sum;
+                guide.innerText = diff === 0 ? "✅ 점수 일치" : `⚠️ ${Math.abs(diff).toLocaleString()}점 ${diff>0?'부족':'초과'}`;
+                guide.style.color = diff === 0 ? "var(--success)" : "var(--danger)";
+            } else {
+                guide.innerText = "점수를 입력하세요";
+                guide.style.color = "var(--text)";
+            }
+
+            const ready = (filled.length === 4 && sum === TOTAL_TARGET) || filled.length === 3;
+            saveBtn.disabled = !ready; saveBtn.style.opacity = ready ? "1" : "0.2";
+
+            if(calcData.length < 4) { resultBody.innerHTML = "<tr><td>점수 입력 중...</td></tr>"; return; }
+
+            const sortedData = [...calcData].sort((a,b) => b.score - a.score);
+            resultBody.innerHTML = "";
+
+            // 전역 변수에 현재 계산 상태 저장
+            currentCalcedResult = {
+                rawScores: calcData.sort((a,b)=>a.idx-b.idx),
+                pot,
+                calculated: []
+            };
+
+            let rank = 0;
+            let groups = [];
+            sortedData.forEach(p => {
+                if(groups.length > 0 && groups[groups.length-1][0].score === p.score) groups[groups.length-1].push(p);
+                else groups.push([p]);
+            });
+
+            groups.forEach(g => {
+                let umaSum = 0;
+                for(let i=0; i<g.length; i++) umaSum += UMA[rank + i];
+                let bonus = (rank === 0) ? (((RETURN_SCORE-START_SCORE)*4)+pot)/1000/g.length : 0;
+                g.forEach(p => {
+                    let pt = ((p.score - RETURN_SCORE)/1000) + (umaSum/g.length) + bonus;
+                    currentCalcedResult.calculated.push({name: p.name, point: pt});
+                    resultBody.innerHTML += `<tr><td>${rank+1}위</td><td>${p.name}</td><td><span class="point-badge ${pt>=0?'pos':'neg'}">${pt>0?'+':''}${pt.toFixed(1)}</span></td></tr>`;
+                });
+                rank += g.length;
+            });
+        }
+
+        function saveRecord() {
+            // 버튼 클릭 시점에 다시 한 번 체크해서 빈칸 채우기
+            const ss = document.querySelectorAll('.p-score');
+            let filledCount = 0;
+            ss.forEach(s => { if(s.value !== "") filledCount++; });
+
+            if(filledCount === 3) {
+                // 3명만 있을 때 calculate를 강제 실행하여 currentCalcedResult를 4명분으로 완성
+                calculate();
+            }
+
+            if(!currentCalcedResult || currentCalcedResult.calculated.length < 4) return;
+
+            const record = {
+                date: editIndex === -1 ? new Date().toLocaleString() : history[editIndex].date,
+                rawScores: currentCalcedResult.rawScores,
+                pot: currentCalcedResult.pot,
+                results: currentCalcedResult.calculated
+            };
+
+            if(editIndex === -1) history.push(record);
+            else history[editIndex] = record;
+
+            localStorage.setItem('mjHistory', JSON.stringify(history));
+            showMainPage();
+        }
+
+        function renderTotalRanking() {
+            const stats = {};
+            history.forEach(m => {
+                const sorted = [...m.results].sort((a,b)=>b.point-a.point);
+                m.results.forEach(p => {
+                    if(!stats[p.name]) stats[p.name] = { total: 0, count: 0, scores: [], ranks: [], strk: 0, mStrk: 0 };
+                    const playerRawData = m.rawScores.find(r => r.name === p.name);
+                    const rawScore = playerRawData ? playerRawData.score : 0;
+                    stats[p.name].total += p.point; stats[p.name].count++; stats[p.name].scores.push(rawScore);
+                    const r = sorted.findIndex(x=>x.name===p.name)+1; stats[p.name].ranks.push(r);
+                    if(r===1){ stats[p.name].strk++; stats[p.name].mStrk = Math.max(stats[p.name].mStrk, stats[p.name].strk); }
+                    else stats[p.name].strk = 0;
+                });
+            });
+            const names = Object.keys(stats).sort((a,b)=>stats[b].total - stats[a].total);
+            const winner = names.length ? Object.keys(stats).sort((a,b)=>(stats[a].ranks.reduce((s,r)=>s+r,0)/stats[a].count)-(stats[b].ranks.reduce((s,r)=>s+r,0)/stats[b].count))[0] : null;
+
+            document.getElementById('total-rank-body').innerHTML = names.map((n, i) => {
+                const s = stats[n], avgR = (s.ranks.reduce((a,b)=>a+b,0)/s.count).toFixed(1);
+                const rowClass = i===0 ? 'rank-1' : (i===names.length-1 ? 'rank-4' : '');
+                return `<tr class="${rowClass}">
+                    <td>${n===winner?'👑 ':''}${n}</td><td>${s.count}</td><td>${avgR}</td><td>${Math.max(...s.scores).toLocaleString()}</td><td>${s.mStrk}</td>
+                    <td><span class="point-badge ${s.total>=0?'pos':'neg'}">${s.total.toFixed(1)}</span></td></tr>`;
+            }).join('');
+        }
+
+        function renderHistoryList() {
+            const list = document.getElementById('history-list');
+            if(!history.length) { list.innerHTML = "기록이 없습니다."; return; }
+            list.innerHTML = history.map((m, i) => `
+                <div class="history-item">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.8rem; opacity:0.6;">
+                        <span>${m.date}</span>
+                        <div style="display:flex; gap:5px;"><button class="btn-edit" onclick="showInputPage(${i})">수정</button>
+                        <button class="btn-edit" style="color:var(--danger);" onclick="deleteRecord(${i})">삭제</button></div>
+                    </div>
+                    <div style="font-size:0.85rem; font-weight:600;">${m.results.map(r => `${r.name}(<span class="${r.point>=0?'pos':'neg'}">${r.point.toFixed(1)}</span>)`).join(', ')}</div>
+                </div>`).reverse().join('');
+        }
+
+        function deleteRecord(i) { if(confirm("삭제하시겠습니까?")) { history.splice(i, 1); localStorage.setItem('mjHistory', JSON.stringify(history)); renderTotalRanking(); renderHistoryList(); } }
+        function showMainPage() { document.getElementById('main-page').style.display='block'; document.getElementById('input-page').style.display='none'; renderTotalRanking(); renderHistoryList(); }
+        function exportData() { const d = btoa(unescape(encodeURIComponent(JSON.stringify(history)))); navigator.clipboard.writeText(d); alert("백업 코드가 클립보드에 복사되었습니다."); }
+        function importData() { const c = prompt("코드를 입력하세요."); if(c) { try { history = JSON.parse(decodeURIComponent(escape(atob(c)))); localStorage.setItem('mjHistory', JSON.stringify(history)); showMainPage(); } catch(e){alert("잘못된 코드입니다.");} } }
+        window.onload = showMainPage;</script>
+</body>
+</html>
