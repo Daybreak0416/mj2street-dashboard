@@ -33,7 +33,7 @@
         }
 
         body {
-            font-family: -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             padding: 20px 15px 80px;
             background: var(--bg);
             color: var(--text);
@@ -95,7 +95,6 @@
 
             input[readonly] {
                 cursor: pointer;
-                caret-color: transparent;
             }
 
         button {
@@ -121,19 +120,10 @@
             margin-top: 20px;
         }
 
-        .btn-edit {
-            background: var(--border);
-            color: var(--text);
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            border-radius: 8px;
-        }
-
-        /* 모달 스타일 */
         #member-modal {
             display: none;
             position: fixed;
-            bottom: 0;
+            top: 0;
             left: 0;
             width: 100%;
             height: 100%;
@@ -175,18 +165,19 @@
             border: 1px solid var(--border);
             color: var(--text);
             border-radius: 10px;
-            font-size: 0.9rem;
         }
 
         .point-badge {
-            padding: 4px 8px;
-            border-radius: 6px;
+            padding: 8px 14px;
+            border-radius: 10px;
             font-weight: 900;
+            font-size: 1.0rem;
             background: rgba(128,128,128,0.1);
+            font-family: 'Pretendard', sans-serif;
         }
 
         .pos {
-            color: var(--accent);
+            color: #00a8ff;
         }
 
         .neg {
@@ -202,6 +193,7 @@
             font-size: 0.75rem;
             color: #b2bec3;
             padding-bottom: 10px;
+            text-align: center;
         }
 
         td {
@@ -212,58 +204,29 @@
 
         .rank-1 {
             background-color: var(--rank1-bg) !important;
-            font-weight: 800;
-        }
-
-        .rank-4 {
-            background-color: var(--rank4-bg) !important;
-            opacity: 0.8;
         }
 
         .pos-rates-cell {
-            font-size: 1.0rem;
-            font-family: 'Courier New', monospace; /* 고정폭으로 정렬감 제공 */
-            color: var(--success);
-            letter-spacing: -0.5px;
-            font-weight: 600;
+            font-size: 0.8rem;
+            font-family: 'Pretendard', sans-serif;
+            color: var(--success); /* 전체 승률과 동일한 색상 */
+            font-weight: 700;
+            letter-spacing: -0.3px;
         }
 
-        /* 히스토리 카드 및 수정/삭제 버튼 개선 */
         .history-card {
-            margin-bottom: 15px;
-            padding: 12px 5px;
+            padding: 15px 5px;
             border-bottom: 1px solid var(--border);
         }
 
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .history-date {
-            font-size: 0.75rem;
-            opacity: 0.6;
-        }
-
-        .history-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
         .action-btn {
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 8px 14px;
+            border-radius: 10px;
             font-size: 0.8rem;
-            font-weight: 800; /* 글씨를 더 두껍게 */
+            font-weight: 800;
+            border: 1px solid transparent;
             cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid transparent; /* 테두리 기본 설정 */
         }
-
-            /* 수정 버튼: 더 진한 파란색 */
             .action-btn.edit {
                 background: rgba(9, 132, 227, 0.08);
                 color: #004a99;
@@ -295,52 +258,23 @@
             border-color: #444;
             color: #eee;
         }
-
-        /* 터치 시 피드백 강화 */
-        .action-btn:active {
-            transform: scale(0.9);
-            background: var(--text);
-            color: var(--card);
-        }
-
-        .action-divider {
-            color: var(--border);
-            margin: 0 2px;
-        }
-
-        .history-body {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .history-player {
-            font-size: 0.9rem;
-            background: var(--bg);
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-        }
     </style>
 </head>
 <body>
     <div id="main-page">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <button onclick="toggleDarkMode()" style="width:48px; height:48px; background:var(--card); border:1px solid var(--border); border-radius: 14px; padding:0;">🌓</button>
-            <h2 style="margin:0;">📊 순위</h2>
+            <h2 style="margin:0;">📊 마작2번가</h2>
             <div style="width:48px;"></div>
         </div>
+
         <div class="card" style="overflow-x: auto; padding: 15px 5px;">
             <table>
-                <thead><tr><th>이름</th><th>대국</th><th>평균</th><th>최고</th><th>연승</th><th>총점</th></tr></thead>
+                <thead><tr><th>이름</th><th>대국</th><th>승률</th><th>평균</th><th>자리별 승률</th><th>총점</th></tr></thead>
                 <tbody id="total-rank-body"></tbody>
             </table>
         </div>
         <button class="btn-main" onclick="showInputPage()">📜 새로운 기록 입력</button>
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button onclick="exportData()" style="flex:1; background:var(--card); border:1px solid var(--border); color:var(--text);">💾 백업</button>
-            <button onclick="importData()" style="flex:1; background:var(--card); border:1px solid var(--border); color:var(--text);">📂 복구</button>
-        </div>
         <h3 style="margin: 30px 5px 15px;">📜 최근 게임</h3>
         <div id="history-list" class="card"></div>
     </div>
@@ -351,20 +285,18 @@
             <div id="guide-msg" style="text-align:center; font-weight:800; margin-bottom:20px;">점수를 입력하세요</div>
             <div id="inputs"></div>
             <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center; padding: 0 10px;">
-                <span style="font-weight:700; opacity:0.6;">공탁금</span>
-                <input type="number" inputmode="numeric" id="pot" value="0" oninput="calculate()" style="width:100px;">
+                <span style="font-weight:700; opacity:0.6;">공탁금(점)</span>
+                <input type="number" inputmode="numeric" id="pot" value="0" step="1000" oninput="calculate()" style="width:100px;">
             </div>
         </div>
         <div class="card" style="background: #2d3436; color: white;">
-            <table style="color: white;">
-                <tbody id="realtime-rank-body"></tbody>
-            </table>
+            <table style="color: white;"><tbody id="realtime-rank-body"></tbody></table>
             <button id="save-button" class="btn-save" onclick="saveRecord()">결과 저장 및 종료</button>
         </div>
     </div>
 
-    <div id="member-modal">
-        <div class="modal-content">
+    <div id="member-modal" onclick="closeMemberModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
             <h3 style="margin:0;">멤버 선택</h3>
             <div class="member-grid" id="member-buttons"></div>
             <button onclick="closeMemberModal()" style="width:100%; background:var(--bg); color:var(--text); border:1px solid var(--border);">취소</button>
@@ -372,11 +304,26 @@
     </div>
 
     <script>
+        const ADMIN_PASSWORD = "admin0416";
         const UMA = [30, 10, -10, -30], START_SCORE = 25000, RETURN_SCORE = 30000, TOTAL_TARGET = 100000;
-        const MEMBER_LIST = ["양주하", "남유성", "최봉민", "용희준"]; // 명단 관리
+        const MEMBER_LIST = ["양주하", "남유성", "최봉민", "용희준"];
 
-        let history = JSON.parse(localStorage.getItem('mjHistory')) || [];
+        // 핵심: 절대 history라는 이름을 전역 변수로 쓰지 않음
+        window.gameHistory = [];
         let editIndex = -1, currentCalcedResult = null, activeInputIndex = -1;
+
+        function checkAuth() {
+            const savedPw = localStorage.getItem('mj_auth_key');
+            if (savedPw === ADMIN_PASSWORD) return true;
+
+            const inputPw = prompt("관리자 비밀번호를 입력해주세요 (최초 1회):");
+            if (inputPw === ADMIN_PASSWORD) {
+                localStorage.setItem('mj_auth_key', inputPw);
+                return true;
+            }
+            alert("권한이 없습니다.");
+            return false;
+        }
 
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
@@ -384,7 +331,6 @@
         }
         if (localStorage.getItem('mjDarkMode') === 'true') document.body.classList.add('dark-mode');
 
-        // 입력칸 생성 (자리 고정)
         function renderInputRows() {
             const container = document.getElementById('inputs');
             const positions = ["東 (동가)", "南 (남가)", "西 (서가)", "北 (북가)"];
@@ -392,30 +338,24 @@
                 <div class="player-row">
                     <div class="input-group">
                         <span class="pos-label">${pos}</span>
-                        <input type="text" class="p-name" placeholder="이름 선택" readonly onclick="openMemberModal(${i})">
+                        <input type="text" class="p-name" placeholder="선택" readonly onclick="openMemberModal(${i})">
                     </div>
                     <div class="input-group" style="flex: 1.2;">
                         <input type="number" inputmode="numeric" class="p-score" placeholder="점수" oninput="calculate()">
                     </div>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
 
         function openMemberModal(index) {
             activeInputIndex = index;
             const container = document.getElementById('member-buttons');
-            container.innerHTML = MEMBER_LIST.map(name => `
-                <button class="member-btn" onclick="selectMember('${name}')">${name}</button>
-            `).join('');
+            container.innerHTML = MEMBER_LIST.map(name => `<button class="member-btn" onclick="selectMember('${name}')">${name}</button>`).join('');
             document.getElementById('member-modal').style.display = 'block';
         }
-
         function closeMemberModal() { document.getElementById('member-modal').style.display = 'none'; }
-
         function selectMember(name) {
             document.querySelectorAll('.p-name')[activeInputIndex].value = name;
-            closeMemberModal();
-            calculate();
+            closeMemberModal(); calculate();
         }
 
         function showInputPage(index = -1) {
@@ -423,14 +363,13 @@
             document.getElementById('main-page').style.display = 'none';
             document.getElementById('input-page').style.display = 'block';
             renderInputRows();
-
-            const ns = document.querySelectorAll('.p-name'), ss = document.querySelectorAll('.p-score');
             if (index !== -1) {
-                history[index].rawScores.forEach((s, i) => {
+                const ns = document.querySelectorAll('.p-name'), ss = document.querySelectorAll('.p-score');
+                window.gameHistory[index].rawScores.forEach((s, i) => {
                     if(ns[i]) ns[i].value = s.name;
                     if(ss[i]) ss[i].value = s.score;
                 });
-                document.getElementById('pot').value = history[index].pot || 0;
+                document.getElementById('pot').value = window.gameHistory[index].pot || 0;
             }
             calculate();
         }
@@ -439,14 +378,12 @@
             const ns = document.querySelectorAll('.p-name'), ss = document.querySelectorAll('.p-score');
             const pot = parseInt(document.getElementById('pot').value) || 0;
             const guide = document.getElementById('guide-msg'), resultBody = document.getElementById('realtime-rank-body'), saveBtn = document.getElementById('save-button');
-
             let filled = [], emptyIdx = -1, sum = pot;
             ss.forEach((s, i) => {
                 const v = parseInt(s.value);
                 if(!isNaN(v)) { filled.push({name:ns[i].value, score:v, idx:i}); sum += v; }
                 else emptyIdx = i;
             });
-
             let calcData = [...filled];
             if(filled.length === 3 && ns[emptyIdx].value !== "") {
                 const needed = TOTAL_TARGET - sum;
@@ -456,25 +393,19 @@
                 const diff = TOTAL_TARGET - sum;
                 guide.innerText = diff === 0 ? "✅ 점수 일치" : `⚠️ ${Math.abs(diff).toLocaleString()}점 오차`;
             }
-
-            const ready = calcData.length === 4 && (sum === TOTAL_TARGET || filled.length === 3);
+            const ready = calcData.length === 4 && calcData.every(p => p.name !== "") && (sum === TOTAL_TARGET || filled.length === 3);
             saveBtn.disabled = !ready; saveBtn.style.opacity = ready ? "1" : "0.2";
-
-            if(!ready) { resultBody.innerHTML = "<tr><td>정보를 모두 입력하세요</td></tr>"; return; }
-
+            if(!ready) { resultBody.innerHTML = "<tr><td colspan='3'>이름과 점수를 모두 입력하세요</td></tr>"; return; }
             const sortedData = [...calcData].sort((a,b) => b.score - a.score);
             resultBody.innerHTML = "";
             currentCalcedResult = { rawScores: calcData.sort((a,b)=>a.idx-b.idx), pot, calculated: [] };
-
             let rank = 0, groups = [];
             sortedData.forEach(p => {
                 if(groups.length > 0 && groups[groups.length-1][0].score === p.score) groups[groups.length-1].push(p);
                 else groups.push([p]);
             });
-
             groups.forEach(g => {
-                let umaSum = 0;
-                for(let i=0; i<g.length; i++) umaSum += UMA[rank + i];
+                let umaSum = 0; for(let i=0; i<g.length; i++) umaSum += UMA[rank + i];
                 let bonus = (rank === 0) ? (((RETURN_SCORE-START_SCORE)*4)+pot)/1000/g.length : 0;
                 g.forEach(p => {
                     let pt = ((p.score - RETURN_SCORE)/1000) + (umaSum/g.length) + bonus;
@@ -485,134 +416,160 @@
             });
         }
 
-        function saveRecord() {
+        async function saveRecord() {
             if(!currentCalcedResult) return;
+            if(!checkAuth()) return;
+            const saveBtn = document.getElementById('save-button');
+            saveBtn.disabled = true; saveBtn.innerText = "저장 중...";
             const record = {
-                date: editIndex === -1 ? new Date().toLocaleString() : history[editIndex].date,
+                date: editIndex === -1 ? new Date().toLocaleString() : window.gameHistory[editIndex].date,
                 rawScores: currentCalcedResult.rawScores,
                 pot: currentCalcedResult.pot,
-                results: currentCalcedResult.calculated
+                results: currentCalcedResult.calculated,
+                timestamp: window.firebaseTimestamp ? window.firebaseTimestamp() : new Date()
             };
-            if(editIndex === -1) history.push(record);
-            else history[editIndex] = record;
-            localStorage.setItem('mjHistory', JSON.stringify(history));
-            showMainPage();
+            try {
+                if(editIndex === -1) await window.firebaseAdd(window.firebaseCollection(window.db, "games"), record);
+                else await window.firebaseUpdate(window.firebaseDoc(window.db, "games", window.gameHistory[editIndex].firebaseId), record);
+                alert("저장되었습니다.");
+                if (window.fetchHistoryFromFirebase) await window.fetchHistoryFromFirebase();
+                showMainPage();
+            } catch (e) { alert("저장 실패: " + e.message); }
+            finally { saveBtn.disabled = false; saveBtn.innerText = "결과 저장 및 종료"; }
         }
 
         function renderTotalRanking() {
             const stats = {};
             const positions = ["東", "南", "西", "北"];
+            if(!window.gameHistory) return;
 
-            history.forEach(m => {
+            window.gameHistory.forEach(m => {
                 const maxPoint = Math.max(...m.results.map(r => r.point));
                 const winners = m.results.filter(r => r.point === maxPoint).map(r => r.name);
 
                 m.results.forEach(p => {
                     if (!stats[p.name]) {
-                        stats[p.name] = { 
-                            total: 0, count: 0, scores: [], ranks: [], wins: 0,
-                            posWins: { "東": 0, "南": 0, "西": 0, "北": 0 },
-                            posCounts: { "東": 0, "南": 0, "西": 0, "北": 0 }
-                        };
+                        stats[p.name] = { total: 0, count: 0, ranks: [], wins: 0, posWins: { "東": 0, "南": 0, "西": 0, "北": 0 }, posCounts: { "東": 0, "南": 0, "西": 0, "北": 0 } };
                     }
                     const s = stats[p.name];
                     const playerRaw = m.rawScores.find(r => r.name === p.name);
-                    const pos = playerRaw ? (playerRaw.position || positions[playerRaw.idx]) : null;
+                    const pos = playerRaw ? positions[playerRaw.idx] : null;
 
                     s.total += p.point;
                     s.count++;
-                    s.scores.push(playerRaw ? playerRaw.score : 0);
                     const r = [...m.results].sort((a,b) => b.point - a.point).findIndex(x => x.name === p.name) + 1;
                     s.ranks.push(r);
-
                     if (pos) {
                         s.posCounts[pos]++;
-                        if (winners.includes(p.name)) {
-                            s.wins++;
-                            s.posWins[pos]++;
-                        }
+                        if (winners.includes(p.name)) { s.wins++; s.posWins[pos]++; }
                     }
                 });
             });
 
             const names = Object.keys(stats).sort((a,b) => stats[b].total - stats[a].total);
-    
-            // 왕관 기준: 승률 1위
-            let winnerName = "";
-            if (names.length > 0) {
-                winnerName = [...names].sort((a, b) => (stats[b].wins / stats[b].count) - (stats[a].wins / stats[a].count))[0];
-            }
-
-            const tbody = document.getElementById('total-rank-body');
-            // 헤더 구조 업데이트
-            document.querySelector('#main-page table thead').innerHTML = 
-                `<tr><th>이름</th><th>대국</th><th>승률</th><th>평균</th><th>최고</th><th>자리별 승률(동/남/서/북)</th><th>총점</th></tr>`;
-
-            tbody.innerHTML = names.map((n, i) => {
+            document.getElementById('total-rank-body').innerHTML = names.map((n, i) => {
                 const s = stats[n];
-                const winRate = ((s.wins / s.count) * 100).toFixed(1); // 전체 승률 소수점 1자리
-                const avgR = (s.ranks.reduce((a,b) => a+b, 0) / s.count).toFixed(1);
+                const posRates = positions.map(p => s.posCounts[p] > 0 ? Math.round((s.posWins[p] / s.posCounts[p]) * 100) + '%' : '-').join(' / ');
         
-                // 자리별 승률 퍼센트 계산 (소수점 없이)
-                const posRates = positions.map(p => {
-                    const count = s.posCounts[p];
-                    const wins = s.posWins[p];
-                    return count > 0 ? Math.round((wins / count) * 100) + '%' : '-';
-                }).join(' ');
-        
-                const isBest = (n === winnerName && s.count > 0);
-                const rowClass = i === 0 ? 'rank-1' : (i === names.length - 1 ? 'rank-4' : '');
-
-                return `<tr class="${rowClass}">
-            <td style="white-space:nowrap; font-weight:700;">${isBest ? '👑 ' : ''}${n}</td>
+                return `<tr class="${i === 0 ? 'rank-1' : ''}">
+            <td style="font-weight:700;">${i===0?'👑 ':''}${n}</td>
             <td>${s.count}</td>
-            <td style="font-weight:bold; color:var(--success); font-size:1.05rem;">${winRate}%</td>
-            <td style="opacity:0.8;">${avgR}</td>
-            <td style="font-size:0.85rem;">${Math.max(...s.scores).toLocaleString()}</td>
+            <td style="color:var(--success); font-weight:bold;">${((s.wins/s.count)*100).toFixed(1)}%</td>
+            <td>${(s.ranks.reduce((a,b)=>a+b,0)/s.count).toFixed(1)}</td>
             <td class="pos-rates-cell">${posRates}</td>
-            <td><span class="point-badge ${s.total >= 0 ? 'pos' : 'neg'}">${s.total.toFixed(1)}</span></td>
+            <td><span class="point-badge ${s.total>=0?'pos':'neg'}">${s.total.toFixed(1)}</span></td>
         </tr>`;
             }).join('');
         }
 
-            // 2. 최근 게임 리스트 (수정/삭제 가독성 개선)
         function renderHistoryList() {
             const list = document.getElementById('history-list');
-            if(!history.length) { 
-                list.innerHTML = "<div style='text-align:center; opacity:0.5; padding:40px;'>기록이 없습니다.</div>"; 
-                return; 
+            if(!window.gameHistory || !window.gameHistory.length) {
+                list.innerHTML = "<div style='text-align:center; opacity:0.5; padding:40px;'>기록이 없습니다.</div>";
+                return;
             }
-            list.innerHTML = history.map((m, i) => `
-        <div class="history-card" style="padding: 15px 5px; border-bottom: 1px solid var(--border);">
-            <div class="history-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span class="history-date" style="font-size:0.75rem; opacity:0.5; font-weight:600;">${m.date}</span>
-                <div class="history-actions">
+            list.innerHTML = window.gameHistory.map((m, i) => `
+        <div class="history-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span style="font-size:0.75rem; opacity:0.5; font-weight:600;">${m.date}</span>
+                <div style="display:flex; gap:8px;">
                     <div class="action-btn edit" onclick="showInputPage(${i})">수정</div>
                     <div class="action-btn delete" onclick="deleteRecord(${i})">삭제</div>
                 </div>
             </div>
-            <div class="history-body" style="display:flex; flex-wrap:wrap; gap:6px;">
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
                 ${m.results.map(r => `
-                    <div style="background:var(--bg); padding:6px 10px; border-radius:8px; border:1px solid var(--border); font-size:0.85rem;">
+                    <div style="background:var(--bg); padding:6px 12px; border-radius:10px; border:1px solid var(--border); font-size:0.85rem; font-weight:600;">
                         ${r.name} <b class="${r.point>=0?'pos':'neg'}" style="margin-left:4px;">${r.point.toFixed(1)}</b>
                     </div>
                 `).join('')}
             </div>
-        </div>`).reverse().join('');
+        </div>
+    `).join('');
         }
 
-        
+        async function deleteRecord(i) {
+            if(!checkAuth()) return;
+            if(confirm("정말로 삭제하시겠습니까?")) {
+                try {
+                    await window.firebaseDelete(window.firebaseDoc(window.db, "games", window.gameHistory[i].firebaseId));
+                    alert("삭제되었습니다."); if (window.fetchHistoryFromFirebase) await window.fetchHistoryFromFirebase();
+                } catch (e) { alert("삭제 실패: " + e.message); }
+            }
+        }
 
-        function deleteRecord(i) { if(confirm("삭제하시겠습니까?")) { history.splice(i, 1); localStorage.setItem('mjHistory', JSON.stringify(history)); showMainPage(); } }
-        function showMainPage() { document.getElementById('main-page').style.display='block'; document.getElementById('input-page').style.display='none'; renderTotalRanking(); renderHistoryList(); }
-        function exportData() { const d = btoa(unescape(encodeURIComponent(JSON.stringify(history)))); navigator.clipboard.writeText(d); alert("복사 완료!"); }
-        function importData() { const c = prompt("코드를 넣으세요"); if(c) { try { history = JSON.parse(decodeURIComponent(escape(atob(c)))); localStorage.setItem('mjHistory', JSON.stringify(history)); showMainPage(); } catch(e){alert("오류!");} } }
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js') // 파일 이름이 sw.js라고 가정
-                .then(() => console.log("서비스 워커 등록 성공!"))
-                .catch((err) => console.log("등록 실패:", err));
+        function showMainPage() {
+            document.getElementById('main-page').style.display='block';
+            document.getElementById('input-page').style.display='none';
+            renderTotalRanking(); renderHistoryList();
         }
         window.onload = showMainPage;
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3F2mbGoPwaVLv4ApY0Q6kTKJ5a1DMnOo",
+            authDomain: "mahjong2street.firebaseapp.com",
+            projectId: "mahjong2street",
+            storageBucket: "mahjong2street.firebasestorage.app",
+            messagingSenderId: "1025761333129",
+            appId: "1:1025761333129:web:6cf1b80462d48b5d089b58"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.db = db;
+        window.firebaseCollection = collection;
+        window.firebaseAdd = addDoc;
+        window.firebaseGet = getDocs;
+        window.firebaseQuery = query;
+        window.firebaseOrder = orderBy;
+        window.firebaseTimestamp = serverTimestamp;
+        window.firebaseDoc = doc;
+        window.firebaseUpdate = updateDoc;
+        window.firebaseDelete = deleteDoc;
+
+        window.fetchHistoryFromFirebase = async function() {
+            try {
+                const q = query(collection(db, "games"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                const list = [];
+                querySnapshot.forEach((doc) => {
+                    list.push({ firebaseId: doc.id, ...doc.data() });
+                });
+                window.gameHistory = list;
+                renderTotalRanking();
+                renderHistoryList();
+                console.log("로드 완료:", list.length);
+            } catch (e) { console.error("Firebase 로드 실패:", e); }
+        };
+
+        // 지연 실행으로 정의 시점 보장
+        setTimeout(() => { window.fetchHistoryFromFirebase(); }, 500);
     </script>
 </body>
 </html>
