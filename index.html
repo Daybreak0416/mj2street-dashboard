@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -218,6 +219,7 @@
             background-color: var(--rank4-bg) !important;
             opacity: 0.8;
         }
+
         .pos-rates-cell {
             font-size: 1.0rem;
             font-family: 'Courier New', monospace; /* 고정폭으로 정렬감 제공 */
@@ -294,12 +296,13 @@
             color: #eee;
         }
 
-            /* 터치 시 피드백 강화 */
-            .action-btn:active {
-                transform: scale(0.9);
-                background: var(--text);
-                color: var(--card);
-            }
+        /* 터치 시 피드백 강화 */
+        .action-btn:active {
+            transform: scale(0.9);
+            background: var(--text);
+            color: var(--card);
+        }
+
         .action-divider {
             color: var(--border);
             margin: 0 2px;
@@ -604,6 +607,11 @@
         function showMainPage() { document.getElementById('main-page').style.display='block'; document.getElementById('input-page').style.display='none'; renderTotalRanking(); renderHistoryList(); }
         function exportData() { const d = btoa(unescape(encodeURIComponent(JSON.stringify(history)))); navigator.clipboard.writeText(d); alert("복사 완료!"); }
         function importData() { const c = prompt("코드를 넣으세요"); if(c) { try { history = JSON.parse(decodeURIComponent(escape(atob(c)))); localStorage.setItem('mjHistory', JSON.stringify(history)); showMainPage(); } catch(e){alert("오류!");} } }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js') // 파일 이름이 sw.js라고 가정
+                .then(() => console.log("서비스 워커 등록 성공!"))
+                .catch((err) => console.log("등록 실패:", err));
+        }
         window.onload = showMainPage;
     </script>
 </body>
