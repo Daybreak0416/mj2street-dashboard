@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json?v=1.1">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -482,7 +482,7 @@
             document.getElementById('total-rank-body').innerHTML = names.map((n, i) => {
                 const s = stats[n];
                 const posRates = positions.map(p => s.posCounts[p] > 0 ? Math.round((s.posWins[p] / s.posCounts[p]) * 100) + '%' : '-').join(' / ');
-        
+
                 return `<tr class="${i === 0 ? 'rank-1' : ''}">
             <td style="font-weight:700;">${i===0?'👑 ':''}${n}</td>
             <td>${s.count}</td>
@@ -583,5 +583,29 @@
         // 지연 실행으로 정의 시점 보장
         setTimeout(() => { window.fetchHistoryFromFirebase(); }, 500);
     </script>
+    <script>if ('serviceWorker' in navigator) {
+    // 1. 서비스 워커 등록 및 업데이트 체크
+    navigator.serviceWorker.register('sw.js').then((reg) => {
+      console.log('서비스 워커 등록 성공');
+
+      // 주기적으로 서버의 새 버전 체크
+      reg.update();
+
+      reg.onupdatefound = () => {
+        const installingWorker = reg.installing;
+        installingWorker.onstatechange = () => {
+          if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // 새 버전이 설치되면 자동 새로고침
+            window.location.reload();
+          }
+        };
+      };
+    });
+
+    // 2. 컨트롤러 변경 시 새로고침
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
+  }</script>
 </body>
 </html>
