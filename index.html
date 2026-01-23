@@ -287,7 +287,15 @@
             <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center; padding: 0 10px;">
                 <span style="font-weight:700; opacity:0.6;">공탁 리치봉 (개당 1,000점)</span>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="number" inputmode="numeric" id="pot" value="0" step="1" oninput="calculate()" style="width:70px; text-align: center;">
+                    <input type="number"
+                           inputmode="numeric"
+                           id="pot"
+                           value="0"
+                           step="1"
+                           oninput="calculate()"
+                           onfocus="if(this.value==='0') this.value='';"
+                           onblur="if(this.value==='') this.value='0';"
+                           style="width:70px; text-align: center;">
                     <span style="font-weight:700;">개</span>
                 </div>
             </div>
