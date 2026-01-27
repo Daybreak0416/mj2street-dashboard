@@ -1,6 +1,8 @@
 ﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
+    <link rel="apple-touch-icon" href="images/icons/icon.png">
+    <link rel="icon" type="image/png" href="images/icons/icon.png">
     <link rel="manifest" href="manifest.json?v=1.1">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -227,6 +229,7 @@
             border: 1px solid transparent;
             cursor: pointer;
         }
+
             .action-btn.edit {
                 background: rgba(9, 132, 227, 0.08);
                 color: #004a99;
@@ -258,6 +261,109 @@
             border-color: #444;
             color: #eee;
         }
+        .tile-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px; /* 패와 패 사이의 간격 */
+            margin-top: 12px;
+            background: #e0e0e0; /* 실제 마작판 느낌이 나도록 약간 어두운 배경 */
+            padding: 12px;
+            border-radius: 10px;
+            justify-content: center;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* 개별 SVG 타일 스타일 */
+        .tile-img {
+            width: 30px; /* 패 크기 확대 */
+            height: 42px; /* 패 크기 확대 */
+            background: #fff;
+            border: 1px solid #bbb;
+            border-radius: 3px;
+            margin-right: -2px; /* 음수 마진으로 패를 완전히 밀착 */
+            display: inline-block;
+            vertical-align: bottom;
+            box-sizing: border-box;
+            box-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+        }
+
+        /* 눕힌 타일 (치, 퐁, 깡) */
+        .tile-rotated {
+            transform: rotate(-90deg) translateX(4px); /* 위치 보정 */
+            transform-origin: center;
+            margin: 0 6px; /* 눕혔을 때 옆 타일과 겹치지 않게 여백 확보 */
+        }
+
+        /* 울음 묶음 사이의 간격 */
+        .meld-gap {
+            display: inline-block;
+            width: 8px;
+        }
+        function displayYaku(type) {
+            const container = document.getElementById('yaku-content');
+            const data = YAKU_DATA[type];
+            if (!data) return;
+            let html = '';
+            data .forEach(yaku => {
+        let tileHtml = '<div class="tile-container">';
+        
+        yaku.tiles.forEach(tileKey => {
+            if (tileKey === "gap") {
+                tileHtml += `<span class="meld-gap"></span>`;
+            } else if (tileKey.endsWith("_r")) {
+                // _r로 끝나면 눕힌 타일 클래스 추가
+                const realTile = tileKey.replace("_r", "");
+                tileHtml += `<img src="images/yaku/${realTile}.svg" class="tile-img tile-rotated">`;
+            } else {
+                tileHtml += `<img src="images/yaku/${tileKey}.svg" class="tile-img">`;
+            }
+        });
+        
+        tileHtml += '</div>';
+
+        html += `
+            <div class="card" style="margin-bottom:15px;">
+                <h3 style="margin:0 0 10px 0; color:var(--accent);">${yaku.name}</h3>
+                <p style="font-size:0.9rem; margin-bottom:12px;">${yaku.text}</p>
+                ${tileHtml}
+            </div>
+        `;
+    });
+            container .innerHTML = html;
+        }
+        body.dark-mode .tile-img {
+            background: #fdfdfd; /* 약간 차분한 흰색 */
+            border-color: #444; /* 어두운 곳에선 외곽선을 조금 더 진하게 */
+            box-shadow: 1px 2px 0px rgba(0,0,0,0.4);
+        }
+        .tile-img:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        /* 다크모드일 때 타일 배경 최적화 */
+        body.dark-mode .tile-container {
+            background: #1a1a1a; /* 다크모드에선 매트한 검정 느낌 */
+        }
+        .han {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #e74c3c; /* 빨간색 계열 */
+            margin-left: 8px;
+            padding: 2px 6px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 4px;
+        }
+
+        /* 멘젠 한정 스타일 */
+        .menzen {
+            font-size: 0.75rem;
+            color: #3498db; /* 파란색 계열 */
+            border: 1px solid #3498db;
+            padding: 1px 4px;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -265,9 +371,8 @@
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <button onclick="toggleDarkMode()" style="width:48px; height:48px; background:var(--card); border:1px solid var(--border); border-radius: 14px; padding:0;">🌓</button>
             <h2 style="margin:0;">📊 마작2번가</h2>
-            <div style="width:48px;"></div>
+            <button onclick="showYakuPage()" style="width:48px; height:48px; background:var(--card); border:1px solid var(--border); border-radius: 14px; padding:0; font-weight:bold; font-size:0.9rem; color:var(--accent);">役</button>
         </div>
-
         <div class="card" style="overflow-x: auto; padding: 15px 5px;">
             <table>
                 <thead><tr><th>이름</th><th>대국</th><th>승률</th><th>평균</th><th>자리별 승률</th><th>총점</th></tr></thead>
@@ -277,6 +382,15 @@
         <button class="btn-main" onclick="showInputPage()">📜 새로운 기록 입력</button>
         <h3 style="margin: 30px 5px 15px;">📜 최근 게임</h3>
         <div id="history-list" class="card"></div>
+    </div> <div id="yaku-page" style="display:none;">
+        <button style="background:var(--border); color:var(--text); margin-bottom:15px;" onclick="showMainPage()">← 뒤로가기</button>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <button class="btn-main" onclick="displayYaku('jp')" style="margin-top:0; flex:1;">일본룰 역</button>
+            <button class="btn-main" onclick="displayYaku('int')" style="margin-top:0; background:#6c5ce7; flex:1;">국제룰 역</button>
+        </div>
+        <div id="yaku-content" style="min-height: 300px;">
+            <div class="card" style="text-align:center; opacity:0.5; padding:100px 20px;">룰을 선택해 주세요.</div>
+        </div>
     </div>
 
     <div id="input-page" style="display:none;">
@@ -372,6 +486,7 @@
         function showInputPage(index = -1) {
             editIndex = index;
             document.getElementById('main-page').style.display = 'none';
+            document.getElementById('yaku-page').style.display = 'none'; // 추가
             document.getElementById('input-page').style.display = 'block';
             renderInputRows();
             if (index !== -1) {
@@ -380,7 +495,7 @@
                     if(ns[i]) ns[i].value = s.name;
                     if(ss[i]) ss[i].value = s.score;
                 });
-                document.getElementById('pot').value = window.gameHistory[index].pot || 0;
+                document.getElementById('pot').value = window.gameHistory[index].pot/1000 || 0;
             }
             calculate();
         }
@@ -529,11 +644,405 @@
                 } catch (e) { alert("삭제 실패: " + e.message); }
             }
         }
+        const YAKU_DATA = {
+            jp: [
+        { 
+            name: "리치 <span class='han'>1판</span> <span class='menzen'>멘젠한정</span>", 
+            text: "멘젠 텐파이 상태에서 1천 점봉을 공탁하면 성립. 이후 패 변경 불가.", 
+            tiles: [] 
+        },
+        {
+            name: "일발 <span class='han'>1판</span> <span class='menzen'>멘젠한정</span>",
+            text: "리치를 걸고 순정 1순 내에 화료.",
+            tiles: []
+        },
+        {
+            name: "멘젠쯔모 <span class='han'>1판</span> <span class='menzen'>멘젠한정</span>",
+            text: "멘젠 상태에서 쯔모 화료.",
+            tiles: []
+        },
+        {
+            name: "탕야오 <span class='han'>1판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "패에 1, 9, 자패가 없이 화료하면 성립.",
+            tiles: ["m2", "m3", "m4", "m5", "m6", "m7", "p3", "p3", "s4", "s4", "s5", "s5", "s6", "gap", "s3"]
+        },
+        {
+            name: "역패 <span class='han'>1판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "장풍패(해당 국의 바람패), 자풍패(자신의 바람패), 삼원패(백 발 중)을 커쯔/깡쯔로 만들면 성립.",
+            tiles: []
+        },
+        {
+            name: "핑후 <span class='han'>1판</span> <span class='menzen'>멘젠한정</span>",
+            text: "몸통 4개가 전부 슌쯔이며, 머리가 몸통이 되었을 때 1판이 되지 않는 패이며, 양면대기일 경우 성립.",
+            tiles: ["m1", "m2", "m3", "m7", "m8", "m9", "s4", "s4", "s5", "s5", "s6", "west", "west", "gap", "s3"]
+        },
+        {
+            name: "이페코 <span class='han'>1판</span> <span class='menzen'>멘젠한정</span>",
+            text: "몸통 2개가 완전히 같은 슌쯔 형태인 경우.",
+            tiles: ["m1", "m2", "m3", "m7", "m8", "m9", "s4", "s4", "s5", "s5", "s6", "s6", "west", "west"]
+        },
+        {
+            name: "해저로월 <span class='han'>1판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "패산의 마지막 패로 쯔모화료.",
+            tiles: []
+        },
+        {
+            name: "하저로어 <span class='han'>1판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "패산의 마지막 패로 론화료.",
+            tiles: []
+        },
+        {
+            name: "영상개화 <span class='han'>1판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "깡을 친 후 영상패로 쯔모화료.",
+            tiles: []
+        },
+        {
+            name: "창깡 <span class='han'>1판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "타가의 소명깡이 론패인 경우. 깡 선언은 무효화.",
+            tiles: []
+        },
+        {
+            name: "치또이츠 <span class='han'>2판</span> <span class='menzen'>멘젠한정</span>",
+            text: "14개의 패가 7쌍의 머리인 경우. 같은 패 4개는 2개의 또이츠로 취급하지 않는다. 25부 고정.",
+            tiles: ["m1", "m1", "m3", "m3", "p2", "p4", "p4", "s5", "s5r", "east", "east", "white", "white", "gap", "p2"]
+        },
+        {
+            name: "더블리치 <span class='han'>2판</span> <span class='menzen'>멘젠한정</span>",
+            text: "순정 1순에 리치 선언시 성립.",
+            tiles: []
+        },
+        {
+            name: "오픈리치 <span class='han'>2판</span> <span class='menzen'>멘젠한정</span>",
+            text: "리치 선언시에 자신의 론패를 공개. 부수가 변할 가능성이 있다면 주위 패를 전부 공개.",
+            tiles: []
+        },
+        {
+            name: "일기통관 <span class='han'>2/1판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "한 종류의 수패를 1~9 전부 모아, 123-456-789로 슌쯔 3개를 만든 경우.",
+            tiles: ["m3", "m3", "p4", "p5", "p6", "p7", "p8", "p9", "s2", "s3", "gap", "p3_r", "p1", "p2", "gap", "s4"]
+        },
+        {
+            name: "삼색동순 <span class='han'>2/1판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "세 종류의 수패로 같은 슌쯔 묶음을 만들면 성립.",
+            tiles: ["m2", "m3", "m4", "p2", "p3", "p4", "s2", "s3", "s4", "green", "green", "green", "white", "gap", "white"]
+        },
+        {
+            name: "챤타 <span class='han'>2/1판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "모든 몸통과 머리에 1,9,자패 가 포함되어 있는 경우. 자패가 포함되어야 한다.",
+            tiles: ["m1", "m1", "m1", "m7", "m8", "m9", "p1", "p1", "s7", "s8", "s9", "red", "red", "gap", "red"]
+        },
+        {
+            name: "혼노두 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "모든 손패를 1,9,자패 로 만들면 성립. 자패가 포함되어야 한다. 치또이츠 형태도 가능하며, 또이또이/치또이츠와 복합되어 4판이상 확정.",
+            tiles: ["m1", "m1", "m1", "m9", "m9", "p1", "p1", "p1", "west", "west", "gap", "east", "east_r", "east", "gap", "west"]
+        },
+        {
+            name: "소삼원 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "삼원패 셋중 둘을 몸통으로, 하나를 머리로 사용. 삼원패와 복합되어 4판이상 확정.",
+            tiles: ["m2", "m3", "m4", "p2", "p3", "red", "red", "gap", "white_r", "white", "white", "green", "green_r", "green", "gap", "p4"]
+        },
+        {
+            name: "또이또이 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "모든 몸통이 커쯔/깡쯔 형태.",
+            tiles: ["p2", "p2", "p8", "p8", "gap", "m4", "m4_r", "m4", "s7", "s7", "s7_r", "south", "south", "south_r", "gap", "p2"]
+        },
+        {
+            name: "산안커 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "안커 3개를 포함한 형태로 화료. 론으로 만든 커쯔는 안커로 포함하지 않음.",
+            tiles: ["m6", "m6", "m6", "p2", "p3", "s8", "s8", "s8", "s9", "s9", "s9", "red", "red", "red", "gap", "p1"]
+        },
+        {
+            name: "산깡쯔 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "깡쯔 3개를 포함한 형태로 화료.",
+            tiles: ["p4", "p5", "p6", "s9", "gap", "back", "m3", "m3", "back", "back", "s3", "s3", "back", "north", "north_r", "north", "north", "gap", "s9"]
+        },
+        {
+            name: "삼색동각 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "세 종류의 수패로 같은 커쯔/깡쯔 묶음을 만들면 성립.",
+            tiles: ["m7", "m8", "p1", "p1", "s5", "s5r", "s5", "gap", "m5", "m5r_r", "m5", "p5", "p5", "p5", "p5_r", "gap", "m9"]
+        },
+        {
+            name: "혼일색 <span class='han'>3/2판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "한 종류의 수패와 자패로만 패를 구성.",
+            tiles: ["m1", "m2", "m3", "m5", "m5", "m7", "m8", "east", "east", "east", "west", "west", "west", "gap", "m6"]
+        },
+        {
+            name: "준챤타 <span class='han'>3/2판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "모든 몸통과 머리에 1,9가 포함되어 있는 경우.",
+            tiles: ["m1", "m2", "m3", "m9", "p9", "p9", "p9", "s1", "s2", "s3", "s7", "s8", "s9", "gap", "m9"]
+        },
+        {
+            name: "량페코 <span class='han'>3판</span> <span class='menzen'>멘젠한정</span>",
+            text: "두개의 이페코를 만들면 성립. 치또이츠와 복합되지 않는다.",
+            tiles: ["m2", "m2", "m3", "m3", "m4", "m4", "s1", "p3", "p3", "p4", "p4", "p5", "p5", "gap", "s1"]
+        },
+        {
+            name: "청일색 <span class='han'>6/5판</span> <span class='menzen'>멘젠비한정</span>",
+            text: "한 종류의 수패로만 패를 만들면 성립.",
+            tiles: ["s1", "s1", "s1", "s2", "s2", "s4", "s4", "s4", "s5", "s6", "s7", "s8", "s9", "gap", "s4"]
+        },
+        {
+            name: "유국만관 <span class='han'>만관</span> <span class='menzen'>멘젠비한정</span>",
+            text: "황패유국 시점에서 자신의 모든 버림패가 요구패인 경우. 단, 한번이라도 치.퐁.캉을 당했다면 성립하지 않는다.",
+            tiles: []
+        },
+        {
+            name: "국사무쌍 <span class='han'>역만</span> <span class='menzen'>멘젠한정</span>",
+            text: "1,9,자패를 한종류씩 모두 모으고, 13종중 하나를 머리로 사용. 십삼면팅의 경우 더블역만. 안깡론이 가능한 유일한 역.",
+            tiles: ["m1", "m9", "p1", "p9", "s1", "s9", "east", "south", "west", "north", "white", "green", "red", "gap", "red"]
+        },
+        {
+            name: "천/지화 <span class='han'>역만</span> <span class='menzen'>멘젠한정</span>",
+            text: "순정 1순에 쯔모화료.",
+            tiles: []
+        },
+        {
+            name: "구련보등 <span class='han'>역만</span> <span class='menzen'>멘젠한정</span>",
+            text: "한 종류의 수패로 1이 3장, 9가 3장, 중장패가 1장씩에 아무 패가 하나 더 있는 형태. 1112345678999 형태로 구면대기 시, 순정구련보등으로 더블역만.",
+            tiles: ["m1", "m1", "m1", "m2", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m9", "gap", "m9"]
+        },
+        {
+            name: "녹일색 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+            text: "모든 패가 녹색으로만 이루어진 형태. 2삭 3삭 4삭 6삭 8삭 발 이 해당한다.",
+            tiles: ["s2", "s2", "s2", "s3", "s3", "s3", "s4", "s6","s6","s6", "gap", "green", "green", "green_r", "gap", "s4"]
+        },
+        {
+            name: "쓰안커 <span class='han'>역만</span> <span class='menzen'>멘젠한정</span>",
+            text: "4개의 안커를 포함한 패로 화료. 산안커의 상위호환. 단기대기로 화료시 더블역만.",
+            tiles: ["m1", "m1", "m1", "p2", "p2", "p2", "s3", "s3", "s3", "east", "east", "east", "white", "gap", "white"]
+        },
+        {
+            name: "쓰깡쯔 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+            text: "4개의 깡쯔를 포함한 패로 화료. 산깡쯔의 상위호환.",
+            tiles: ["south", "gap", "back", "m7", "m7", "back", "back", "m9", "m9", "back", "s8", "s8_r", "s8", "s8", "gap", "south"]
+        },
+        {
+            name: "청노두 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+            text: "1, 9로만 이루어진 패. 혼노두의 상위호환.",
+            tiles: ["m1", "m1", "m1", "m9", "m9", "m9", "p1", "p1", "s1", "s1", "s1", "s9", "s9", "gap", "p1"]
+        },
+        {
+            name: "자일색 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+            text: "자패로만 이루어진 패.",
+            tiles: ["east", "east", "west", "west", "west", "green", "green", "gap", "south", "south", "south_r", "white_r", "white", "white", "gap", "east"]
+        },
+        {
+            name: "대삼원 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+            text: "삼원패를 모두 몸통으로 사용.",
+            tiles: ["m2", "m3", "m4", "p1", "white", "white", "white", "green", "green", "green", "red", "red", "red", "gap", "p1"]
+        },
+        {
+            name: "소/대사희 <span class='han'>역만/더블역만</span> <span class='menzen'>멘젠비한정</span>",
+            text: "4종류의 풍패중 셋이 몸통이고 하나가 머리면 소사희, 넷 모두가 몸통이면 대사희.",
+            tiles: ["m1", "m2", "m3", "east", "east", "east", "west", "west", "west", "north", "gap", "south", "south", "south_r", "gap", "north"]
+        },
+            ],
+            int: [
+                {
+                    name: "츠바메가에시 <span class='han'>1판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "타가가 리치를 선언하면서 버린 패로 론을 선언할 경우.",
+                    tiles: []
+                },
+                {
+                    name: "삼색삼보고 <span class='han'>1판</span> <span class='menzen'>멘젠한정</span>",
+                    text: "세 종류의 수패를 사용해, 숫자가 1씩 비껴나간 슌쯔 3개를 구성.",
+                    tiles: ["m2", "m3", "m4", "p3", "p4", "p5", "s4", "s5", "s6"]
+                },
+                {
+                    name: "화룡 <span class='han'>2/1판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "세 종류의 수패를 사용해, 일기통관 형태를 구성.",
+                    tiles: ["m1", "m2", "m3", "p4", "p5", "p6", "s7", "s8", "s9"]
+                },
+                {
+                    name: "삼리엔커 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "한 종류의 수패로 연속된 숫자 커쯔 3개를 구성.",
+                    tiles: ["m2", "m2", "m2", "m3", "m3", "m3", "m4", "m4", "m4"]
+                },
+                {
+                    name: "삼절고 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "세 종류의 수패로 연속된 숫자 커쯔 3개를 구성.",
+                    tiles: ["m2", "m2", "m2", "p3", "p3", "p3", "s4", "s4", "s4"]
+                },
+                {
+                    name: "전쌍각 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "짝수인 수패만으로 패를 구성. 또이또이와 복합되어 최소 4판.",
+                    tiles: ["m2", "m2", "m2", "m4", "m4", "m4", "p6", "p6", "p6", "s2", "s2", "s8", "s8", "s8"]
+                },
+                {
+                    name: "오문제 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "세 종류의 수패, 풍패, 삼원패를 모두 사용하여 패를 구성.",
+                    tiles: ["m3", "m4", "m5", "p1", "p1", "p1", "s6", "s7", "s8", "east", "east", "east", "white", "white"]
+                },
+                {
+                    name: "추부도 <span class='han'>2판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "패를 뒤집었을때 형태가 동일한 14종의 패만으로 구성. (중은 포함하지 않는다.)",
+                    tiles: ["p1", "p2", "p3", "p3", "p4", "p5", "s8", "s8", "s8", "s9", "s9", "s9", "white", "white"]
+                },
+                {
+                    name: "조합룡 <span class='han'>3판</span> <span class='menzen'>멘젠한정</span>",
+                    text: "세 종류의 수패로 각각 147, 258, 369 형태를 구성하고, 몸통 하나와 머리 하나를 구성. 나머지 몸통 하나가 양면인 경우 핑후 복합 가능.",
+                    tiles: ["m1", "m4", "m7", "s2", "s5", "s8", "p3", "p6", "p9", "m1", "m2", "m3", "p5", "p5"]
+                },
+                {
+                    name: "대/소우오 <span class='han'>3/2판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "수패 6789(대우오), 또는 1234(소우오)로만 패를 구성. ",
+                    tiles: ["m6", "m6", "m6", "m7", "m7", "m7", "p6" ,"p7", "p8", "p9", "p9", "s7", "s8", "s9"]
+                },
+                {
+                    name: "일색삼보고 <span class='han'>3/2판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "한 종류의 수패로 삼보고 형태를 구성.",
+                    tiles: ["m2", "m3", "m3", "m4", "m4", "m4", "m5", "m5", "m6"]
+                },
+                {
+                    name: "일색삼순 <span class='han'>3/2판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "한 종류의 수패로 동일한 슌쯔 3개를 구성. 삼리엔커, 이페코와 복합되지 않는다.",
+                    tiles: ["p2_r", "p3", "p4", "p2", "p3", "p4", "p2", "p3", "p4"]
+                },
+                {
+                    name: "삼색쌍룡회 <span class='han'>3/2판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "두종류의 수패로 123, 789를 두쌍 만들고, 나머지 한 종류의 수패로 5의 머리를 구성.",
+                    tiles: ["m1", "m2", "m3", "m7", "m8", "m9", "p1", "p2", "p3", "p7", "p8", "p9", "s5", "s5"]
+                },
+                {
+                    name: "전대오 <span class='han'>3/2판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "모든 몸통과 머리에 5의 수패가 포함된 경우. 전중과 복합가능.",
+                    tiles: ["m3", "m4", "m5", "m5", "m5", "p4", "p5", "p6", "s3", "s4", "s4", "s5", "s5", "s6"]
+                },
+                {
+                    name: "칠성불고 <span class='han'>4판40부</span> <span class='menzen'>멘젠한정</span>",
+                    text: "자패 7종과, 서로 다른 세 종류의 수패로 147, 258, 369 중 7장으로 구성. 7종의 자패를 모두 모은 상태라면 3면팅.",
+                    tiles: ["m1", "m7", "p2", "p8", "s3", "s6", "s9", "east", "south", "west", "north", "white", "green", "red"]
+                },
+                {
+                    name: "전대/중/소 <span class='han'>6/5판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "수패 123(전소), 456(전중), 789(전대)로만 패를 구성.",
+                    tiles: ["m1", "m1", "m1", "m2", "m2", "p1", "p2", "p3", "s2", "s2", "s2", "s3", "s3"]
+                },
+                {
+                    name: "일색사보고 <span class='han'>6/5판</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "한 종류의 수패로 사보고 형태를 구성. 일색삼보고의 상위호환.",
+                    tiles: ["m1", "m2", "m2", "m3", "m3", "m3", "m4", "m4", "m4", "m5", "m5", "m6"]
+                },
+                {
+                    name: "금문교 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "한 종류의 수패로 123, 345, 567, 789 형태를 구성.",
+                    tiles: ["p1", "p2", "p3", "p3", "p4", "p5", "p5", "p6", "p7", "p7", "p8", "p9"]
+                },
+                {
+                    name: "일색사순 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "동일한 슌쯔 4개를 구성.",
+                    tiles: ["p2", "p2", "p2", "p2", "p3", "p3", "p3", "p3", "p4", "p4", "p4", "p4"]
+                },
+                {
+                    name: "일색쌍룡회 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "한 종류의 수패로 삼색쌍룡회 형태를 구성.",
+                    tiles: ["s1", "s1", "s2", "s2", "s3", "s3", "s5", "s5", "s7", "s7", "s8", "s8", "s9", "s9"]
+                },
+                {
+                    name: "사리엔커 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "한 종류의 수패로 연속된 숫자 커쯔 4개를 구성. 삼리엔커의 상위호환.",
+                    tiles: ["p1", "p1", "p1", "p2", "p2", "p2", "p3", "p3", "p3", "p4", "p4", "p4"]
+                },
+                {
+                    name: "화조풍월 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "5통(화), 1삭(조), 1통(월), 풍패(풍)을 커쯔로 구성.",
+                    tiles: ["p5", "p5", "p5", "s1", "s1", "s1", "p1", "p1", "p1", "west", "west", "west"]
+                },
+                {
+                    name: "풍화설월 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "풍패(풍), 5통(화), 백(설), 1통(월)을 커쯔로 구성.",
+                    tiles: ["west", "west", "west", "p5", "p5", "p5r", "white", "white", "white", "p1", "p1", "p1"]
+                },
+                {
+                    name: "홍일점 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "녹일색에서 발을 제외한 나머지 패와 중을 반드시 포함해 구성.",
+                    tiles: ["s2", "s2", "s3", "s3", "s4", "s4", "s6", "s6", "s6", "s8", "s8", "red", "red", "red"]
+                },
+                {
+                    name: "백만석 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "만수청일색일때, 모든 수의 합이 100 이상이라면 성립. 정확히 100이라면 카가백만석으로 더블역만.",
+                    tiles: ["m2", "m2", "m4", "m5", "m6", "m7", "m7", "m7", "gap", "back", "m8", "m8", "back", "back", "m9", "m9", "back"]
+                },
+                {
+                    name: "십삼불탑/무고 <span class='han'>역만</span> <span class='menzen'>멘젠한정</span>",
+                    text: "순정 1순 쯔모 시, 또이쯔만 하나가 있고 나머지 패가 모두 양면/변쨩/간쨩/또이쯔 가 되지 않는 상태라면 십삼불탑. 하나의 또이쯔 조차 없다면 십삼무고.",
+                    tiles: ["m2", "m5", "m8", "p1", "p4", "p8", "s6", "s6", "east", "west", "north", "white", "green", "red"]
+                },
+                {
+                    name: "팔연장 <span class='han'>역만</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "유국 없이 친이 8번 연속 화료시 성립. 친이 되었을 때 부터 카운트.",
+                    tiles: []
+                },
+                {
+                    name: "남북통일 <span class='han'>역만</span> <span class='menzen'>멘젠한정</span>",
+                    text: "남과 북으로 커쯔, 머리를 구성하고, 일기통관을 포함하면 성립.",
+                    tiles: ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "south", "south", "north", "north", "north"]
+                },
+                {
+                    name: "대/소차륜 <span class='han'>더블역만/역만</span> <span class='menzen'>멘젠한정</span>",
+                    text: "한 종류의 수패로 2~8의 치또이츠를 구성시 대차륜, 1~7 또는 3~9의 치또이츠를 구성시 소차륜.",
+                    tiles: ["p2", "p2", "p3", "p3", "p4", "p4", "p5", "p5", "p6", "p6", "p7", "p7", "p8", "p8"]
+                },
+                {
+                    name: "대칠성 <span class='han'>더블역만</span> <span class='menzen'>멘젠한정</span>",
+                    text: "자일색 치또이츠 형태를 구성. 자일색과 복합되지 않음.",
+                    tiles: ["east", "east", "south", "south", "west", "west", "north", "north", "white", "white", "green", "green", "red", "red"]
+                },
+                {
+                    name: "홍공작 <span class='han'>더블역만</span> <span class='menzen'>멘젠비한정</span>",
+                    text: "1,5,7,9삭과 중으로만 패를 구성. 쓰안커 등과 복합 가능.",
+                    tiles: ["s1", "s1", "s5", "s5", "s5", "s7", "s7", "s7", "s9", "s9", "s9", "red", "red", "red"]
+                },
+            ]
+        };
 
         function showMainPage() {
-            document.getElementById('main-page').style.display='block';
-            document.getElementById('input-page').style.display='none';
-            renderTotalRanking(); renderHistoryList();
+            document.getElementById('main-page').style.display = 'block';
+            document.getElementById('input-page').style.display = 'none';
+            document.getElementById('yaku-page').style.display = 'none';
+            if(window.renderTotalRanking) renderTotalRanking(); 
+            if(window.renderHistoryList) renderHistoryList();
+        }
+
+        function showYakuPage() {
+            document.getElementById('main-page').style.display = 'none';
+            document.getElementById('input-page').style.display = 'none';
+            document.getElementById('yaku-page').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        function displayYaku(type) {
+            const container = document.getElementById('yaku-content');
+            const data = YAKU_DATA[type];
+            if (!data) return;
+
+            let html = '';
+            data.forEach(yaku => {
+                let tileHtml = '<div class="tile-container">';
+        
+                yaku.tiles.forEach(tileKey => {
+                    if (tileKey === "gap") {
+                        tileHtml += `<span class="meld-gap"></span>`;
+                    } else if (tileKey.endsWith("_r")) {
+                        // _r로 끝나면 눕힌 타일 클래스 추가
+                        const realTile = tileKey.replace("_r", "");
+                        tileHtml += `<img src="images/yaku/${realTile}.svg" class="tile-img tile-rotated">`;
+                    } else {
+                        tileHtml += `<img src="images/yaku/${tileKey}.svg" class="tile-img">`;
+                    }
+                });
+        
+                tileHtml += '</div>';
+
+                html += `
+            <div class="card" style="margin-bottom:15px;">
+                <h3 style="margin:0 0 10px 0; color:var(--accent);">${yaku.name}</h3>
+                <p style="font-size:0.9rem; margin-bottom:12px;">${yaku.text}</p>
+                ${tileHtml}
+            </div>
+        `;
+            });
+            container.innerHTML = html;
         }
         window.onload = showMainPage;
     </script>
@@ -583,7 +1092,8 @@
         // 지연 실행으로 정의 시점 보장
         setTimeout(() => { window.fetchHistoryFromFirebase(); }, 500);
     </script>
-    <script>if ('serviceWorker' in navigator) {
+    <script>
+if ('serviceWorker' in navigator) {
     // 1. 서비스 워커 등록 및 업데이트 체크
     navigator.serviceWorker.register('sw.js').then((reg) => {
       console.log('서비스 워커 등록 성공');
