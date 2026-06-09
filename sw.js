@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mahjong-v3.0'; // 버전을 올려서 새 캐시 생성 유도
+const CACHE_NAME = 'mahjong-v4.0'; // 버전을 올려서 새 캐시 생성 유도
 const ASSETS = [
   './',             // 루트 경로 추가
   './index.html',
