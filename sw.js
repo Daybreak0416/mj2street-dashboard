@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mahjong-v4.1'; // 버전을 살짝 올려서 리프레시 유도
+const CACHE_NAME = 'mahjong-v4.2'; // 버전을 살짝 올려서 리프레시 유도
 const ASSETS = [
   './',
   './index.html',
