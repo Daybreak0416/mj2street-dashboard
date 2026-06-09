@@ -1,54 +1,54 @@
-const CACHE_NAME = 'mahjong-v4.2'; // ¹öÀüÀ» »ìÂ¦ ¿Ã·Á¼­ ¸®ÇÁ·¹½Ã À¯µµ
+const CACHE_NAME = 'mahjong-v4.2'; // ë²„ì „ì„ ì‚´ì§ ì˜¬ë ¤ì„œ ë¦¬í”„ë ˆì‹œ ìœ ë„
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json',
+  './manifest2.json',
   './images/icons/icon.png'
 ];
 
-// 1. ¼­ºñ½º ¿öÄ¿ ¼³Ä¡ ¹× ÀÚ»ê Ä³½Ì
+// 1. ì„œë¹„ìŠ¤ ì›Œì»¤ ì„¤ì¹˜ ë° ìžì‚° ìºì‹±
 self.addEventListener('install', (e) => {
-    // e.waitUntil ³»ºÎ¿¡¼­ Ä³½ÌÀÌ ¿Ïº®È÷ ³¡³­ ÈÄ¿¡ skipWaitingÀÌ ½ÇÇàµÇµµ·Ï ¾ÈÀüÇÏ°Ô ¹­¾ú½À´Ï´Ù.
+    // e.waitUntil ë‚´ë¶€ì—ì„œ ìºì‹±ì´ ì™„ë²½ížˆ ëë‚œ í›„ì— skipWaitingì´ ì‹¤í–‰ë˜ë„ë¡ ì•ˆì „í•˜ê²Œ ë¬¶ì—ˆìŠµë‹ˆë‹¤.
     e.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('ÇÊ¼ö ÀÚ»ê Ä³½Ì Áß...');
+                console.log('í•„ìˆ˜ ìžì‚° ìºì‹± ì¤‘...');
                 return cache.addAll(ASSETS);
             })
             .then(() => {
-                return self.skipWaiting(); // Ä³½Ì ¿Ï·á ÈÄ ¾ÈÀüÇÏ°Ô Á¦¾î±Ç È¹µæ
+                return self.skipWaiting(); // ìºì‹± ì™„ë£Œ í›„ ì•ˆì „í•˜ê²Œ ì œì–´ê¶Œ íšë“
             })
-            .catch(err => console.error('Ä³½Ì ½ÇÆÐ (°æ·Î/ÆÄÀÏ È®ÀÎ ÇÊ¿ä):', err))
+            .catch(err => console.error('ìºì‹± ì‹¤íŒ¨ (ê²½ë¡œ/íŒŒì¼ í™•ì¸ í•„ìš”):', err))
     );
 });
 
-// 2. ±¸¹öÀü Ä³½Ã Ã»¼Ò ¹× È°¼ºÈ­
+// 2. êµ¬ë²„ì „ ìºì‹œ ì²­ì†Œ ë° í™œì„±í™”
 self.addEventListener('activate', (e) => {
     e.waitUntil(
         caches.keys().then((keys) => {
             return Promise.all(
                 keys.map((key) => {
                     if (key !== CACHE_NAME) {
-                        console.log('±¸¹öÀü Ä³½Ã Á¦°Å ¿Ï·á:', key);
+                        console.log('êµ¬ë²„ì „ ìºì‹œ ì œê±° ì™„ë£Œ:', key);
                         return caches.delete(key);
                     }
                 })
             );
-        }).then(() => self.clients.claim()) // ÇÙ½É: »õ ¼­ºñ½º ¿öÄ¿°¡ Áï½Ã ÆäÀÌÁöµéÀ» Áö¹èÇÏµµ·Ï ¼³Á¤
+        }).then(() => self.clients.claim()) // í•µì‹¬: ìƒˆ ì„œë¹„ìŠ¤ ì›Œì»¤ê°€ ì¦‰ì‹œ íŽ˜ì´ì§€ë“¤ì„ ì§€ë°°í•˜ë„ë¡ ì„¤ì •
     );
 });
 
-// 3. ³×Æ®¿öÅ© ¿äÃ» Ã³¸® (Cache First, À¥ ÆùÆ®³ª ÀÌ¹ÌÁö ÀÚ»ê ÃÖÀûÈ­)
+// 3. ë„¤íŠ¸ì›Œí¬ ìš”ì²­ ì²˜ë¦¬ (Cache First, ì›¹ í°íŠ¸ë‚˜ ì´ë¯¸ì§€ ìžì‚° ìµœì í™”)
 self.addEventListener('fetch', (e) => {
     e.respondWith(
         caches.match(e.request).then((res) => {
-            // Ä³½Ã¿¡ ÀÖÀ¸¸é Áï½Ã ¹ÝÈ¯(ÃÊ°í¼Ó), ¾øÀ¸¸é ³×Æ®¿öÅ©¿¡¼­ °¡Á®¿È
+            // ìºì‹œì— ìžˆìœ¼ë©´ ì¦‰ì‹œ ë°˜í™˜(ì´ˆê³ ì†), ì—†ìœ¼ë©´ ë„¤íŠ¸ì›Œí¬ì—ì„œ ê°€ì ¸ì˜´
             return res || fetch(e.request);
         })
     );
 });
 
-// 4. ¸ÞÀÎ ½ºÅ©¸³Æ®¿¡¼­ º¸³½ skipWaiting ¸Þ½ÃÁö ¼ö½Å ÀåÄ¡
+// 4. ë©”ì¸ ìŠ¤í¬ë¦½íŠ¸ì—ì„œ ë³´ë‚¸ skipWaiting ë©”ì‹œì§€ ìˆ˜ì‹  ìž¥ì¹˜
 self.addEventListener('message', (e) => {
     if (e.data && e.data.action === 'skipWaiting') {
         self.skipWaiting();
