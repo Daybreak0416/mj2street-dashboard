@@ -408,6 +408,7 @@
                     <input type="number"
                            inputmode="numeric"
                            id="pot"
+                           name="pot"
                            value="0"
                            step="1"
                            oninput="calculate()"
@@ -467,10 +468,22 @@
                 <div class="player-row">
                     <div class="input-group">
                         <span class="pos-label">${pos}</span>
-                        <input type="text" class="p-name" placeholder="선택" readonly onclick="openMemberModal(${i})">
+                        <input type="text" 
+       id="p-name-${i}" 
+       name="p-name-${i}" 
+       class="p-name" 
+       placeholder="선택" 
+       readonly 
+       onclick="openMemberModal(${i})">
                     </div>
                     <div class="input-group" style="flex: 1.2;">
-                        <input type="number" inputmode="numeric" class="p-score" placeholder="점수" oninput="calculate()">
+                        <input type="number" 
+       id="p-score-${i}" 
+       name="p-score-${i}" 
+       inputmode="numeric" 
+       class="p-score" 
+       placeholder="점수" 
+       oninput="calculate()">
                     </div>
                 </div>`).join('');
         }
